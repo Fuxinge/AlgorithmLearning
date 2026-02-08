@@ -1035,32 +1035,209 @@ print(dict(users))
 
 ### 7.3 deque - 双端队列
 
+**导入**: `from collections import deque`
+
+**定义**: 双端队列，支持从两端高效添加和删除元素，时间复杂度 O(1)
+
+#### 7.3.1 初始化
+
 ```python
 from collections import deque
 
-# 初始化
-dq = deque([1, 2, 3])
+# 空双端队列
+dq1 = deque()
 
-# 两端添加
-dq.append(4)      # 右端添加: deque([1, 2, 3, 4])
-dq.appendleft(0)  # 左端添加: deque([0, 1, 2, 3, 4])
+# 从列表初始化
+dq2 = deque([1, 2, 3, 4, 5])
 
-# 两端删除
-dq.pop()       # 右端删除，返回4
-dq.popleft()   # 左端删除，返回0
+# 指定最大长度（满了会自动删除另一端的元素）
+dq3 = deque([1, 2, 3], maxlen=3)
+dq3.append(4)  # deque([2, 3, 4], maxlen=3)，自动删除了1
 
-# rotate() - 旋转
-dq = deque([1, 2, 3, 4, 5])
-dq.rotate(2)   # 向右旋转2位: deque([4, 5, 1, 2, 3])
-dq.rotate(-1)  # 向左旋转1位: deque([5, 1, 2, 3, 4])
+# 从字符串初始化
+dq4 = deque("hello")  # deque(['h', 'e', 'l', 'l', 'o'])
+```
 
-# 使用场景 - 滑动窗口
+#### 7.3.2 添加元素
+
+```python
 from collections import deque
+
+dq = deque([2, 3, 4])
+
+# append() - 右端添加
+dq.append(5)
+# deque([2, 3, 4, 5])
+
+# appendleft() - 左端添加
+dq.appendleft(1)
+# deque([1, 2, 3, 4, 5])
+
+# extend() - 右端批量添加
+dq.extend([6, 7])
+# deque([1, 2, 3, 4, 5, 6, 7])
+
+# extendleft() - 左端批量添加（注意顺序是反的）
+dq.extendleft([0, -1])
+# deque([-1, 0, 1, 2, 3, 4, 5, 6, 7])
+```
+
+#### 7.3.3 删除元素
+
+```python
+from collections import deque
+
+dq = deque([1, 2, 3, 4, 5])
+
+# pop() - 删除并返回右端元素
+x = dq.pop()  # x = 5
+# dq = deque([1, 2, 3, 4])
+
+# popleft() - 删除并返回左端元素
+y = dq.popleft()  # y = 1
+# dq = deque([2, 3, 4])
+
+# remove() - 删除第一个匹配的元素
+dq = deque([1, 2, 3, 2, 4])
+dq.remove(2)  # 删除第一个2
+# deque([1, 3, 2, 4])
+
+# clear() - 清空
+dq.clear()
+# deque([])
+```
+
+#### 7.3.4 访问和搜索
+
+```python
+from collections import deque
+
+dq = deque([1, 2, 3, 4, 5])
+
+# 索引访问
+print(dq[0])   # 1 (左端)
+print(dq[-1])  # 5 (右端)
+print(dq[2])   # 3
+
+# 修改元素
+dq[1] = 10
+# deque([1, 10, 3, 4, 5])
+
+# count() - 统计元素出现次数
+dq = deque([1, 2, 3, 2, 4, 2])
+print(dq.count(2))  # 3
+
+# index() - 查找元素第一次出现的索引
+print(dq.index(3))  # 2
+
+# in - 判断元素是否存在
+print(3 in dq)  # True
+```
+
+#### 7.3.5 旋转操作
+
+```python
+from collections import deque
+
+dq = deque([1, 2, 3, 4, 5])
+
+# rotate(n) - 向右旋转n位
+dq.rotate(2)
+print(dq)  # deque([4, 5, 1, 2, 3])
+
+# rotate(-n) - 向左旋转n位
+dq.rotate(-1)
+print(dq)  # deque([5, 1, 2, 3, 4])
+
+# 完整循环
+dq = deque([1, 2, 3, 4, 5])
+dq.rotate(1)   # deque([5, 1, 2, 3, 4])
+dq.rotate(-1)  # deque([1, 2, 3, 4, 5]) 回到原位
+```
+
+#### 7.3.6 其他操作
+
+```python
+from collections import deque
+
+dq = deque([1, 2, 3, 4, 5])
+
+# len() - 长度
+print(len(dq))  # 5
+
+# reverse() - 反转
+dq.reverse()
+print(dq)  # deque([5, 4, 3, 2, 1])
+
+# copy() - 浅拷贝
+dq2 = dq.copy()
+
+# 转换为列表
+lst = list(dq)
+print(lst)  # [5, 4, 3, 2, 1]
+
+# 遍历
+for x in dq:
+    print(x)
+```
+
+#### 7.3.7 maxlen 限制长度
+
+```python
+from collections import deque
+
+# 创建最大长度为3的队列
+dq = deque(maxlen=3)
+
+dq.append(1)  # deque([1], maxlen=3)
+dq.append(2)  # deque([1, 2], maxlen=3)
+dq.append(3)  # deque([1, 2, 3], maxlen=3)
+dq.append(4)  # deque([2, 3, 4], maxlen=3) - 自动删除最左边的1
+
+# 从左边添加
+dq.appendleft(0)  # deque([0, 2, 3], maxlen=3) - 自动删除最右边的4
+
+# 用途：保持最近的N个元素
+recent_values = deque(maxlen=5)
+for i in range(10):
+    recent_values.append(i)
+print(recent_values)  # deque([5, 6, 7, 8, 9], maxlen=5)
+```
+
+#### 7.3.8 deque vs list 性能对比
+
+```python
+from collections import deque
+
+# deque 的优势：两端操作都是 O(1)
+dq = deque([1, 2, 3])
+dq.appendleft(0)  # O(1)
+dq.popleft()      # O(1)
+
+# list 在左端操作是 O(n)
+lst = [1, 2, 3]
+lst.insert(0, 0)  # O(n) - 需要移动所有元素
+lst.pop(0)        # O(n) - 需要移动所有元素
+
+# list 的优势：随机访问
+lst[100]  # O(1)
+
+# deque 的随机访问稍慢
+dq[100]  # O(n) - 需要从两端开始查找
+```
+
+#### 7.3.9 使用场景 - 滑动窗口最大值
+
+```python
+from collections import deque
+
 def maxSlidingWindow(nums, k):
-    dq = deque()
+    """滑动窗口最大值 - 单调队列"""
+    dq = deque()  # 存储索引
     result = []
+
     for i, num in enumerate(nums):
-        # 维护单调队列
+        # 维护单调递减队列
         while dq and nums[dq[-1]] < num:
             dq.pop()
         dq.append(i)
@@ -1069,9 +1246,113 @@ def maxSlidingWindow(nums, k):
         if dq[0] <= i - k:
             dq.popleft()
 
+        # 记录窗口最大值
         if i >= k - 1:
             result.append(nums[dq[0]])
+
     return result
+
+nums = [1, 3, -1, -3, 5, 3, 6, 7]
+k = 3
+print(maxSlidingWindow(nums, k))  # [3, 3, 5, 5, 6, 7]
+```
+
+#### 7.3.10 使用场景 - BFS（广度优先搜索）
+
+```python
+from collections import deque
+
+def bfs(graph, start):
+    """图的BFS遍历"""
+    visited = set([start])
+    queue = deque([start])
+    result = []
+
+    while queue:
+        node = queue.popleft()
+        result.append(node)
+
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+
+    return result
+
+graph = {
+    0: [1, 2],
+    1: [0, 3, 4],
+    2: [0, 4],
+    3: [1],
+    4: [1, 2]
+}
+print(bfs(graph, 0))  # [0, 1, 2, 3, 4]
+```
+
+#### 7.3.11 使用场景 - 回文检查
+
+```python
+from collections import deque
+
+def is_palindrome(s):
+    """检查是否为回文"""
+    dq = deque(s.lower())
+
+    while len(dq) > 1:
+        if dq.popleft() != dq.pop():
+            return False
+    return True
+
+print(is_palindrome("racecar"))  # True
+print(is_palindrome("hello"))    # False
+```
+
+#### 7.3.12 使用场景 - 最近使用记录（LRU缓存）
+
+```python
+from collections import deque
+
+class RecentCounter:
+    """记录最近3000ms内的请求"""
+    def __init__(self):
+        self.requests = deque()
+
+    def ping(self, t):
+        self.requests.append(t)
+        # 移除3000ms之前的请求
+        while self.requests[0] < t - 3000:
+            self.requests.popleft()
+        return len(self.requests)
+
+counter = RecentCounter()
+print(counter.ping(1))     # 1
+print(counter.ping(100))   # 2
+print(counter.ping(3001))  # 3
+print(counter.ping(3002))  # 3 (请求1被移除)
+```
+
+#### 7.3.13 使用场景 - 循环缓冲区
+
+```python
+from collections import deque
+
+class CircularBuffer:
+    """固定大小的循环缓冲区"""
+    def __init__(self, size):
+        self.buffer = deque(maxlen=size)
+
+    def add(self, item):
+        self.buffer.append(item)
+
+    def get_all(self):
+        return list(self.buffer)
+
+# 保持最近5条日志
+log_buffer = CircularBuffer(5)
+for i in range(10):
+    log_buffer.add(f"Log {i}")
+
+print(log_buffer.get_all())  # ['Log 5', 'Log 6', 'Log 7', 'Log 8', 'Log 9']
 ```
 
 ### 7.4 OrderedDict - 有序字典
