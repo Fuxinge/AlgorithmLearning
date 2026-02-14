@@ -1355,7 +1355,7 @@ for i in range(10):
 print(log_buffer.get_all())  # ['Log 5', 'Log 6', 'Log 7', 'Log 8', 'Log 9']
 ```
 
-### 7.4 OrderedDict - 有序字典
+### 7.4 OrderedDict - 有序字典 or 双向链表
 
 ```python
 from collections import OrderedDict
@@ -1886,4 +1886,4 @@ s = "".join(words)  # O(n)
 
 ---
 
-**最后更新**: 2026年2月7日
+**最后更新**: 2026年2月14日
