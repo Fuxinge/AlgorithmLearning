@@ -1355,21 +1355,375 @@ for i in range(10):
 print(log_buffer.get_all())  # ['Log 5', 'Log 6', 'Log 7', 'Log 8', 'Log 9']
 ```
 
-### 7.4 OrderedDict - 有序字典 or 双向链表
+### 7.4 OrderedDict - 有序字典
+
+**导入**: `from collections import OrderedDict`
+
+**定义**: 记住键值对插入顺序的字典（Python 3.7+ 普通dict也保持插入顺序）
+
+#### 7.4.1 初始化
 
 ```python
 from collections import OrderedDict
 
-# 记住插入顺序（Python 3.7+ 普通dict也有序）
+# 空 OrderedDict
+d1 = OrderedDict()
+
+# 从键值对列表初始化
+d2 = OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+
+# 从关键字参数初始化（注意：参数顺序可能不保证）
+d3 = OrderedDict(a=1, b=2, c=3)
+
+# 从普通字典初始化（保持原字典顺序）
+regular_dict = {'a': 1, 'b': 2, 'c': 3}
+d4 = OrderedDict(regular_dict)
+```
+
+#### 7.4.2 基本操作
+
+```python
+from collections import OrderedDict
+
 d = OrderedDict()
 d['a'] = 1
 d['b'] = 2
 d['c'] = 3
 print(d)  # OrderedDict([('a', 1), ('b', 2), ('c', 3)])
 
-# move_to_end() - 移动到末尾
+# 访问元素
+print(d['a'])  # 1
+
+# 修改元素（位置不变）
+d['a'] = 10
+print(d)  # OrderedDict([('a', 10), ('b', 2), ('c', 3)])
+
+# 删除元素
+del d['b']
+print(d)  # OrderedDict([('a', 10), ('c', 3)])
+
+# 重新插入（会添加到末尾）
+d['b'] = 2
+print(d)  # OrderedDict([('a', 10), ('c', 3), ('b', 2)])
+```
+
+#### 7.4.3 move_to_end() - 移动到末尾或开头
+
+```python
+from collections import OrderedDict
+
+d = OrderedDict([('a', 1), ('b', 2), ('c', 3), ('d', 4)])
+
+# 移动到末尾（默认 last=True）
 d.move_to_end('a')
-print(d)  # OrderedDict([('b', 2), ('c', 3), ('a', 1)])
+print(d)  # OrderedDict([('b', 2), ('c', 3), ('d', 4), ('a', 1)])
+
+# 移动到开头（last=False）
+d.move_to_end('d', last=False)
+print(d)  # OrderedDict([('d', 4), ('b', 2), ('c', 3), ('a', 1)])
+
+# 连续移动
+d.move_to_end('b')
+d.move_to_end('c')
+print(d)  # OrderedDict([('d', 4), ('a', 1), ('b', 2), ('c', 3)])
+```
+
+#### 7.4.4 popitem() - 按顺序删除
+
+```python
+from collections import OrderedDict
+
+d = OrderedDict([('a', 1), ('b', 2), ('c', 3), ('d', 4)])
+
+# 删除并返回最后一个元素（LIFO，last=True）
+key, value = d.popitem()
+print(f"Removed: {key}={value}")  # Removed: d=4
+print(d)  # OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+
+# 删除并返回第一个元素（FIFO，last=False）
+key, value = d.popitem(last=False)
+print(f"Removed: {key}={value}")  # Removed: a=1
+print(d)  # OrderedDict([('b', 2), ('c', 3)])
+```
+
+#### 7.4.5 遍历（保持顺序）
+
+```python
+from collections import OrderedDict
+
+d = OrderedDict([('first', 1), ('second', 2), ('third', 3)])
+
+# 遍历键（按插入顺序）
+for key in d:
+    print(key, end=' ')  # first second third
+
+print()
+
+# 遍历键值对
+for key, value in d.items():
+    print(f"{key}: {value}")
+# first: 1
+# second: 2
+# third: 3
+
+# 反向遍历
+for key in reversed(d):
+    print(key, end=' ')  # third second first
+```
+
+#### 7.4.6 相等性比较
+
+```python
+from collections import OrderedDict
+
+# OrderedDict 比较时考虑顺序
+d1 = OrderedDict([('a', 1), ('b', 2)])
+d2 = OrderedDict([('b', 2), ('a', 1)])
+print(d1 == d2)  # False（顺序不同）
+
+# 普通字典比较不考虑顺序
+dict1 = {'a': 1, 'b': 2}
+dict2 = {'b': 2, 'a': 1}
+print(dict1 == dict2)  # True
+
+# OrderedDict 与普通字典比较（不考虑顺序）
+d3 = OrderedDict([('a', 1), ('b', 2)])
+dict3 = {'b': 2, 'a': 1}
+print(d3 == dict3)  # True（值相同即可）
+```
+
+#### 7.4.7 OrderedDict vs dict (Python 3.7+)
+
+```python
+from collections import OrderedDict
+
+# Python 3.7+ 普通dict也保持插入顺序
+regular_dict = {}
+regular_dict['a'] = 1
+regular_dict['b'] = 2
+regular_dict['c'] = 3
+print(regular_dict)  # {'a': 1, 'b': 2, 'c': 3}
+
+# OrderedDict 的优势：
+# 1. move_to_end() 方法
+od = OrderedDict([('a', 1), ('b', 2), ('c', 3)])
+od.move_to_end('a')  # 普通dict没有这个方法
+
+# 2. popitem(last=False) 可以从开头删除
+od.popitem(last=False)  # 普通dict的popitem()只能从末尾删除
+
+# 3. 相等性比较考虑顺序
+od1 = OrderedDict([('a', 1), ('b', 2)])
+od2 = OrderedDict([('b', 2), ('a', 1)])
+print(od1 == od2)  # False
+
+# 4. reversed() 更高效
+for key in reversed(od):
+    print(key)
+```
+
+#### 7.4.8 使用场景 - LRU 缓存（最近最少使用）
+
+```python
+from collections import OrderedDict
+
+class LRUCache:
+    """最近最少使用缓存"""
+    def __init__(self, capacity):
+        self.cache = OrderedDict()
+        self.capacity = capacity
+
+    def get(self, key):
+        if key not in self.cache:
+            return -1
+        # 移到末尾表示最近使用
+        self.cache.move_to_end(key)
+        return self.cache[key]
+
+    def put(self, key, value):
+        if key in self.cache:
+            # 更新值并移到末尾
+            self.cache.move_to_end(key)
+        self.cache[key] = value
+
+        # 超过容量，删除最旧的（第一个）
+        if len(self.cache) > self.capacity:
+            self.cache.popitem(last=False)
+
+# 使用示例
+cache = LRUCache(2)
+cache.put(1, 1)
+cache.put(2, 2)
+print(cache.get(1))    # 1
+cache.put(3, 3)        # 删除键 2
+print(cache.get(2))    # -1 (未找到)
+cache.put(4, 4)        # 删除键 1
+print(cache.get(1))    # -1 (未找到)
+print(cache.get(3))    # 3
+print(cache.get(4))    # 4
+```
+
+#### 7.4.9 使用场景 - 保持插入顺序的计数器
+
+```python
+from collections import OrderedDict
+
+def count_in_order(items):
+    """按首次出现的顺序统计频率"""
+    counter = OrderedDict()
+    for item in items:
+        counter[item] = counter.get(item, 0) + 1
+    return counter
+
+words = ['apple', 'banana', 'apple', 'cherry', 'banana', 'apple']
+result = count_in_order(words)
+print(result)
+# OrderedDict([('apple', 3), ('banana', 2), ('cherry', 1)])
+
+# 按首次出现顺序遍历
+for word, count in result.items():
+    print(f"{word}: {count}")
+# apple: 3
+# banana: 2
+# cherry: 1
+```
+
+#### 7.4.10 使用场景 - 配置文件（保持顺序）
+
+```python
+from collections import OrderedDict
+
+class Config:
+    """保持配置项顺序的配置类"""
+    def __init__(self):
+        self.settings = OrderedDict()
+
+    def set(self, key, value):
+        self.settings[key] = value
+
+    def get(self, key, default=None):
+        return self.settings.get(key, default)
+
+    def save(self, filename):
+        """保存配置（保持顺序）"""
+        with open(filename, 'w') as f:
+            for key, value in self.settings.items():
+                f.write(f"{key}={value}\n")
+
+config = Config()
+config.set('host', 'localhost')
+config.set('port', 8080)
+config.set('debug', True)
+config.set('timeout', 30)
+
+# 按插入顺序输出
+for key, value in config.settings.items():
+    print(f"{key} = {value}")
+# host = localhost
+# port = 8080
+# debug = True
+# timeout = 30
+```
+
+#### 7.4.11 使用场景 - 任务队列（优先级 + 顺序）
+
+```python
+from collections import OrderedDict
+
+class TaskQueue:
+    """带优先级的任务队列（相同优先级按添加顺序）"""
+    def __init__(self):
+        self.tasks = OrderedDict()
+
+    def add_task(self, task_id, priority):
+        self.tasks[task_id] = priority
+
+    def get_next_task(self):
+        """获取最高优先级的任务（优先级相同取最早添加的）"""
+        if not self.tasks:
+            return None
+
+        # 找到最高优先级
+        max_priority = max(self.tasks.values())
+
+        # 找到第一个该优先级的任务
+        for task_id, priority in self.tasks.items():
+            if priority == max_priority:
+                self.tasks.pop(task_id)
+                return task_id
+
+    def get_all_tasks(self):
+        return list(self.tasks.items())
+
+queue = TaskQueue()
+queue.add_task('task1', 1)
+queue.add_task('task2', 3)
+queue.add_task('task3', 3)
+queue.add_task('task4', 2)
+
+print(queue.get_next_task())  # task2 (优先级3，最早添加)
+print(queue.get_next_task())  # task3 (优先级3)
+print(queue.get_next_task())  # task4 (优先级2)
+print(queue.get_all_tasks())  # [('task1', 1)]
+```
+
+#### 7.4.12 使用场景 - 最近访问记录
+
+```python
+from collections import OrderedDict
+
+class RecentlyViewed:
+    """最近浏览记录（去重，保持最新顺序）"""
+    def __init__(self, max_size=10):
+        self.items = OrderedDict()
+        self.max_size = max_size
+
+    def view(self, item):
+        """浏览项目"""
+        if item in self.items:
+            # 如果已存在，移到末尾
+            self.items.move_to_end(item)
+        else:
+            # 新项目添加到末尾
+            self.items[item] = True
+            # 超过最大数量，删除最旧的
+            if len(self.items) > self.max_size:
+                self.items.popitem(last=False)
+
+    def get_history(self):
+        """获取浏览历史（从新到旧）"""
+        return list(reversed(self.items.keys()))
+
+history = RecentlyViewed(max_size=5)
+pages = ['home', 'products', 'about', 'home', 'contact', 'products', 'blog']
+
+for page in pages:
+    history.view(page)
+
+print(history.get_history())
+# ['blog', 'products', 'contact', 'home', 'about']
+```
+
+#### 7.4.13 实用技巧 - 字典排序
+
+```python
+from collections import OrderedDict
+
+# 按键排序
+d = {'banana': 3, 'apple': 5, 'cherry': 2}
+sorted_by_key = OrderedDict(sorted(d.items()))
+print(sorted_by_key)
+# OrderedDict([('apple', 5), ('banana', 3), ('cherry', 2)])
+
+# 按值排序
+sorted_by_value = OrderedDict(sorted(d.items(), key=lambda x: x[1]))
+print(sorted_by_value)
+# OrderedDict([('cherry', 2), ('banana', 3), ('apple', 5)])
+
+# 按值降序排序
+sorted_by_value_desc = OrderedDict(sorted(d.items(), key=lambda x: x[1], reverse=True))
+print(sorted_by_value_desc)
+# OrderedDict([('apple', 5), ('banana', 3), ('cherry', 2)])
 ```
 
 ---
